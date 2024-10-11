@@ -1,0 +1,6 @@
+{
+  "name": "wghelper",
+  "description": "",
+  "sourcePaths": ["src"],
+  "dependencies": {}
+}
