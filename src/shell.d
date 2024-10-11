@@ -14,4 +14,9 @@ class Shell {
     string command = format("cat %s", key);
     return executeShell(command).output.strip();
   }
+
+  string lsDir(string path) {
+    string command = format("ls %s", path);
+    return executeShell(command).output.strip();
+  }
 }
