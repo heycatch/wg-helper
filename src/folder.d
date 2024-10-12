@@ -39,7 +39,7 @@ class Folder {
       string name, string fileFullPath, string priv, string pub, string ipaddr, string port) {
     File file = File(TEMPDIR ~ name ~ ".conf", "w");
     file.writeln("[Interface]");
-    file.writeln("AllowedIPs = 10.0.0." ~ countAllowedIPs(fileFullPath).to!string ~ "/32");
+    file.writeln("AllowedIPs = 10.0.0." ~ (countAllowedIPs(fileFullPath)-1).to!string ~ "/32");
     file.writeln("PrivateKey = " ~ priv); // client private key
     file.writeln("DNS = 8.8.8.8");
     file.writeln("");

@@ -44,8 +44,12 @@ void main(string[] args) {
         config ~ "temp/" ~ sh.lsDir(config ~ "temp"),
         args[2], sh.readKey(config ~ key.pub));
       writefln("ok... %s added", args[2]);
-      // TODO: client configuration for windows/linux/android/iphone,
-      // save to /tmp/ and make a notification
+      folder.createUserConfigFile(
+        // FIXME: change config~temp/->WGDIR; config~temp->WGDIR
+        Info.SERVERLOCATION, config ~ "temp/" ~ sh.lsDir(config ~ "temp"),
+        sh.readKey(config ~ key.priv),
+        sh.readKey(config ~ "server/publickey.*"), sh.getIpAddress(), Info.SERVERPORT);
+      writefln("ok... %s.conf saved in %s", Info.SERVERLOCATION, folder.TEMPDIR);
 
       writeln("restart the server now? y/n");
       string input = readln();

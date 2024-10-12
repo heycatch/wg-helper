@@ -44,4 +44,8 @@ class Shell {
 
     return res;
   }
+
+  string getIpAddress() {
+    return executeShell("curl -s ifconfig.me").output.strip();
+  }
 }
