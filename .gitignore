@@ -1,2 +1,3 @@
 wghelper
-src/.main.d.swp
+src/.*.d.swp
+.*.d.swp

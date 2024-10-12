@@ -6,18 +6,15 @@ import std.stdio;
 class Folder {
   const string WGDIR = "/etc/wireguard/";
   const string TEMPDIR = "/tmp/";
-  const string ROOTDIR = "/root/.config/wg-keys/";
 
-  // FIXME: change TEMPDIR~bob->ROOTDIR
-  void createConfigDir() { mkdir(TEMPDIR ~ "bob"); }
+  void createConfigDir(string path) { mkdir(path); }
 
-  // FIXME: change TEMPDIR~bob/->WGDIR
-  void createConfigFile(string name, string priv) {
-    File file = File(TEMPDIR ~ "bob/" ~ name ~ ".conf", "w");
+  void createServerConfigFile(string path, string name, string priv) {
+    File file = File(path ~ name ~ ".conf", "w");
     file.writeln("[Interface]");
     file.writeln("Address = 10.0.0.1/24");
     file.writeln("ListenPort = 1337");
-    file.writeln("PrivateKey = " ~ priv);
+    file.writeln("PrivateKey = " ~ priv); // server private key
     file.writeln("SaveConfig = true");
     // TODO: change default eth0
     file.writeln("PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE");
@@ -25,14 +22,28 @@ class Folder {
     file.close();
   }
 
-  // FIXME: change TEMPDIR~bob/->WGDIR
   void addUser(string fileFullPath, string name, string pub) {
     File file = File(fileFullPath, "a");
     file.writeln("");
     file.writeln("[Peer]");
     file.writeln("# " ~ name);
-    file.writeln("PublicKey = " ~ pub);
+    file.writeln("PublicKey = " ~ pub); // client public key
     file.writeln("AllowedIPs = 10.0.0." ~ countAllowedIPs(fileFullPath).to!string ~ "/32");
+    file.close();
+  }
+
+  void createUserConfigFile(string name, string fileFullPath, string priv, string pub, string ipaddr) {
+    File file = File(TEMPDIR ~ name ~ ".conf", "w");
+    file.writeln("[Interface]");
+    file.writeln("AllowedIPs = 10.0.0." ~ countAllowedIPs(fileFullPath).to!string ~ "/32");
+    file.writeln("PrivateKey = " ~ priv); // client private key
+    file.writeln("DNS = 8.8.8.8");
+    file.writeln("");
+    file.writeln("[Peer]");
+    file.writeln("PublicKey = " ~ pub); // server public key
+    file.writeln("Endpoint = " ~ ipaddr); // server ip address
+    file.writeln("AllowedIPs = 0.0.0.0/0");
+    file.writeln("PersistentKeepalive = 20");
     file.close();
   }
 
