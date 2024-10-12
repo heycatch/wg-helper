@@ -32,4 +32,16 @@ class Shell {
     string command = format("wg-quick down %s && wg-quick up %s", name, name);
     return executeShell(command).status;
   }
+
+  string getEthInterface() {
+    string command = executeShell("ip addr | grep '2: '").output.strip();
+    string res = "";
+
+    for (int i = 3; i < command.split("").length; i++) {
+      if (command[i] == ':') break;
+      res ~= command[i];
+    }
+
+    return res;
+  }
 }

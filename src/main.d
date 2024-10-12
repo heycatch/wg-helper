@@ -27,7 +27,9 @@ void main(string[] args) {
       writeln("ok... keys genreated");
       // FIXME: change config~temp/->WGDIR
       folder.createServerConfigFile(
-        config ~ "temp/", args[2], sh.readKey(config ~ "server/" ~ key.priv));
+        config ~ "temp/", args[2],
+        sh.readKey(config ~ "server/" ~ key.priv),
+        sh.getEthInterface());
       writeln("ok... config file created");
     } else {
       writefln("generate keys error code: %d", keys);

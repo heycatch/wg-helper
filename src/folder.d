@@ -9,16 +9,19 @@ class Folder {
 
   void createConfigDir(string path) { mkdir(path); }
 
-  void createServerConfigFile(string path, string name, string priv) {
+  void createServerConfigFile(string path, string name, string priv, string ethInterface) {
     File file = File(path ~ name ~ ".conf", "w");
     file.writeln("[Interface]");
     file.writeln("Address = 10.0.0.1/24");
     file.writeln("ListenPort = 1337");
     file.writeln("PrivateKey = " ~ priv); // server private key
     file.writeln("SaveConfig = true");
-    // TODO: change default eth0
-    file.writeln("PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE");
-    file.writeln("PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE");
+    file.writeln(
+      "PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o " ~
+      ethInterface ~ " -j MASQUERADE");
+    file.writeln(
+      "PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o " ~
+      ethInterface ~ " -j MASQUERADE");
     file.close();
   }
 
@@ -32,7 +35,8 @@ class Folder {
     file.close();
   }
 
-  void createUserConfigFile(string name, string fileFullPath, string priv, string pub, string ipaddr) {
+  void createUserConfigFile(
+      string name, string fileFullPath, string priv, string pub, string ipaddr, string port) {
     File file = File(TEMPDIR ~ name ~ ".conf", "w");
     file.writeln("[Interface]");
     file.writeln("AllowedIPs = 10.0.0." ~ countAllowedIPs(fileFullPath).to!string ~ "/32");
@@ -41,7 +45,7 @@ class Folder {
     file.writeln("");
     file.writeln("[Peer]");
     file.writeln("PublicKey = " ~ pub); // server public key
-    file.writeln("Endpoint = " ~ ipaddr); // server ip address
+    file.writeln("Endpoint = " ~ ipaddr ~ port); // server ip address
     file.writeln("AllowedIPs = 0.0.0.0/0");
     file.writeln("PersistentKeepalive = 20");
     file.close();
