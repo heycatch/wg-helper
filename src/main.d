@@ -55,7 +55,6 @@ void main(string[] args) {
     assert(server == 0, "failed to restart the server");
     writeln("ok... server restarted");
   } else {
-    writeln(sh.lsDir(folder.WGDIR)[0..$-5]);
     writeln("wrong args: wghelper [server | client] [name]");
   }
 }
