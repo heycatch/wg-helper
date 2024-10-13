@@ -25,6 +25,10 @@ class Shell {
     return executeShell(format("wg-quick down %s && wg-quick up %s", name, name)).status;
   }
 
+  int startSystemctl(string name) {
+    return executeShell(format("systemctl enable wg-quick@%s && systemctl start wg-quick@%s", name, name)).status;
+  }
+
   string getEthInterface() {
     string eth = "";
     string command = executeShell("ip addr | grep '2: '").output.strip();

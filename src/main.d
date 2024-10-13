@@ -19,19 +19,20 @@ void main(string[] args) {
     writeln("ok... config folder created");
     folder.createConfigDir(config ~ "server");
     writeln("ok... server folder created");
-    // FIXME: delete temp folder after all tests
-    folder.createConfigDir(config ~ "temp");
 
     int keys = sh.generateKeys(config ~ "server", key.priv, key.pub);
     assert(keys == 0, "key generation error");
     writeln("ok... keys genreated");
 
-    // FIXME: change config~temp/->WGDIR
     folder.createServerConfigFile(
-      config ~ "temp/", args[2],
+      folder.WGDIR, args[2],
       sh.readKey(config ~ "server/" ~ key.priv),
       sh.getEthInterface());
     writeln("ok... config file created");
+
+    int startService = sh.startSystemctl(sh.lsDir(folder.WGDIR)[0..$-5]);
+    assert(startService == 0, "failed to start the service");
+    writeln("ok... service started");
   } else if (args.length == 3 && args[1] == "client") {
     Key key = Key(args[2]);
 
@@ -39,29 +40,22 @@ void main(string[] args) {
     assert(keys == 0, "key generation error");
     writeln("ok... keys genreated");
 
-    // FIXME: change config~temp->WGDIR; config~temp->WGDIR
+    int count = folder.countAllowedIPs(folder.WGDIR ~ sh.lsDir(folder.WGDIR));
+
     folder.addUser(
-      config ~ "temp/" ~ sh.lsDir(config ~ "temp"),
-      args[2], sh.readKey(config ~ key.pub));
+      folder.WGDIR ~ sh.lsDir(folder.WGDIR),
+      args[2], sh.readKey(config ~ key.pub), count);
     writefln("ok... %s added", args[2]);
     folder.createUserConfigFile(
-      // FIXME: change config~temp/->WGDIR; config~temp->WGDIR
-      Info.SERVERLOCATION, config ~ "temp/" ~ sh.lsDir(config ~ "temp"),
-      sh.readKey(config ~ key.priv),
+      Info.SERVERLOCATION, count, sh.readKey(config ~ key.priv),
       sh.readKey(config ~ "server/publickey.*"), sh.getIpAddress(), Info.SERVERPORT);
     writefln("ok... %s.conf saved in %s", Info.SERVERLOCATION, folder.TEMPDIR);
 
-    writeln("restart the server now? y/n");
-    string input = readln();
-    if (input[0..$-1] == "y") {
-      // FIXME: change sh.lsDir(config~temp)->WGDIR
-      int server = sh.restartServer(sh.lsDir(config ~ "temp")[0..$-5]);
-      assert(server == 0, "error when trying to restart the server");
-      writeln("ok... server restarted");
-    } else {
-      writeln("don't forget to restart the server");
-    }
+    int server = sh.restartServer(sh.lsDir(folder.WGDIR)[0..$-5]);
+    assert(server == 0, "failed to restart the server");
+    writeln("ok... server restarted");
   } else {
+    writeln(sh.lsDir(folder.WGDIR)[0..$-5]);
     writeln("wrong args: wghelper [server | client] [name]");
   }
 }

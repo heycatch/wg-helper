@@ -25,21 +25,21 @@ class Folder {
     file.close();
   }
 
-  void addUser(string fileFullPath, string name, string pub) {
+  void addUser(string fileFullPath, string name, string pub, int count) {
     File file = File(fileFullPath, "a");
     file.writeln("");
     file.writeln("[Peer]");
     file.writeln("# " ~ name);
     file.writeln("PublicKey = " ~ pub); // client public key
-    file.writeln("AllowedIPs = 10.0.0." ~ countAllowedIPs(fileFullPath).to!string ~ "/32");
+    file.writeln("AllowedIPs = 10.0.0." ~ count.to!string ~ "/32");
     file.close();
   }
 
   void createUserConfigFile(
-      string name, string fileFullPath, string priv, string pub, string ipaddr, string port) {
+      string name, int count, string priv, string pub, string ipaddr, string port) {
     File file = File(TEMPDIR ~ name ~ ".conf", "w");
     file.writeln("[Interface]");
-    file.writeln("AllowedIPs = 10.0.0." ~ (countAllowedIPs(fileFullPath)-1).to!string ~ "/32");
+    file.writeln("AllowedIPs = 10.0.0." ~ count.to!string ~ "/32");
     file.writeln("PrivateKey = " ~ priv); // client private key
     file.writeln("DNS = 8.8.8.8");
     file.writeln("");
